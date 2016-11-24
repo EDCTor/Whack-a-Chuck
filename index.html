@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <style type="text/css">
+            #gameBoard {
+                margin: auto;
+                margin-top: 75px;
+                width: 250px;
+                height: 250px;
+            }
+
+            #gameBoard .tile {
+                background-color: white;
+                background-image:url(./images/hole.png);
+                height: 62px;
+                width: 62px;
+                margin: 2px;
+                display: inline-block;
+            }
+
+            #gameBoard .tile.mole {
+                background-color: black;
+                background-image:url(./images/torN.png);
+            }
+
+            #gameBoard .tile.whacked {
+                background-color: black;
+                background-image:url(./images/torW.png);
+            }
+        </style>
+        <title>Wack-a-Chuck</title>
+        <script type="text/javascript">
+            //<![CDATA[
+            window.onload=function(){
+            var game = function() {
+                var gameBoard_Selector = "#gameBoard";
+                var tile_Selector = ".tile";
+                var mole_ClassName = "mole";
+                var whacked_ClassName = "whacked";
+
+                var $gameBoard = $(gameBoard_Selector);
+                var $gameTiles = $gameBoard.find(tile_Selector);
+
+                var gameTime = 40 * 1000;
+                var turnTime = 2000;
+
+                var moleInterval;
+                var moleLifeMin = 200;
+                var moleLifeMax = 1 * 2000;
+
+                var gameScore = 0;
+
+                var getRandomIntInclusive = function(min, max) {
+                    return Math.floor(Math.random() * (max - min + 1)) + min;
+                }
+
+                // --------------------------------------------------------------
+                // Add a click handler to the board
+                // --------------------------------------------------------------
+                $gameBoard.on("click", ".tile", function() {
+                    var $this = $(this);
+
+                    // --------------------------------------------------------------
+                    // user clicked on a tile, its not a mole
+                    // --------------------------------------------------------------
+                    if (!$this.hasClass(mole_ClassName)) { return; }
+
+                    // --------------------------------------------------------------
+                    // if the tile is a mole, hide the mole and tally score
+                    // --------------------------------------------------------------
+                    $this.removeClass(mole_ClassName);
+                    $this.addClass(whacked_ClassName);
+
+                    gameScore += 1;
+                });
+
+                var startGame = function() {
+                    gameScore = 0;
+
+                    // --------------------------------------------------------------
+                    // Every turnTime, spawn a new mole.
+                    // Record moleInterval so we can cancel it when the game ends.
+                    // --------------------------------------------------------------
+                    moleInterval = setInterval(spawnMole, turnTime);
+
+                    // --------------------------------------------------------------
+                    // The game ends after specified seconds
+                    // --------------------------------------------------------------
+                    setTimeout(endGame, gameTime);
+                }
+
+                var endGame = function() {
+                    // --------------------------------------------------------------
+                    // Stop spawning new moles
+                    // --------------------------------------------------------------
+                    clearInterval(moleInterval);
+
+                    // --------------------------------------------------------------
+                    // "hide" any existing moles, or whacked moles
+                    // --------------------------------------------------------------
+                    $gameTiles.removeClass(mole_ClassName);
+                    $gameTiles.removeClass(whacked_ClassName);
+
+                    alert("Game Over! Score: " + gameScore);
+                }
+
+                var spawnMole = function(timeToLive) {
+                    // --------------------------------------------------------------
+                    // Select a random tile to set as a mole.
+                    // --------------------------------------------------------------
+                    var $targetTile = $($gameTiles[getRandomIntInclusive(0, $gameTiles.length - 1)]);
+
+                    // --------------------------------------------------------------
+                    // Moles shall live for a random amount of time
+                    // --------------------------------------------------------------
+                    var timeToLive = getRandomIntInclusive(moleLifeMin , moleLifeMax);
+
+                    // --------------------------------------------------------------
+                    // "show" the mole, and hide any wacked moles
+                    // --------------------------------------------------------------
+                    $targetTile.addClass(mole_ClassName);
+                    $gameTiles.removeClass(whacked_ClassName);
+
+                    // --------------------------------------------------------------
+                    // after timeToLive, automatically "hide" the mole
+                    // --------------------------------------------------------------
+                    setTimeout(function() { $targetTile.removeClass(mole_ClassName); }, timeToLive);
+                }
+
+                return {
+                    startGame
+                };
+
+            }();
+
+            game.startGame();
+        }//]]>
+
+        </script>
+
+    </head>
+
+    <body>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <div id="gameBoard">
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+    </div>
+
+    </body>
+</html>
